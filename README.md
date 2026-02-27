@@ -17,6 +17,9 @@ Designed for VPS and production environments where Docker storage growth must be
 - Does NOT remove running containers
 - Root permission check
 - Production-safe defaults
+- System-wide installation support
+- Version checking functionality
+- Installation status verification
 
 ---
 
@@ -47,11 +50,35 @@ chmod +x docker-cleanup.sh
 sudo ./docker-cleanup.sh
 ```
 
+### 3. System-wide Installation (Optional)
+
+For easier access, you can install the script system-wide:
+
+```bash
+sudo ./docker-cleanup.sh
+# Select option 3: Install script (system-wide)
+```
+
+After installation, you can run the script from anywhere:
+
+```bash
+sudo docker-cleanup
+```
+
+### 4. Check Installation Status
+
+To verify if the script is installed and check versions:
+
+```bash
+sudo ./docker-cleanup.sh
+# Select option 4: Check installation status
+```
+
 ---
 
-## Cleanup Modes
+## Available Options
 
-### 1) Step-by-step
+### 1) Step-by-step cleanup
 
 Prompts before each action:
 
@@ -74,6 +101,24 @@ docker builder prune -a -f
 ```
 
 Recommended for CI or non-critical environments.
+
+---
+
+### 3) Install script (system-wide)
+
+Copies the script to `/usr/local/bin/docker-cleanup` for easy access from anywhere.
+
+---
+
+### 4) Check installation status
+
+Verifies if the script is installed, shows installed version, and compares with current version.
+
+---
+
+### 5) Abort
+
+Exits the script without performing any actions.
 
 ---
 

@@ -2,12 +2,53 @@
 
 set -e
 
+# Script configuration
+SCRIPT_NAME="docker-cleanup.sh"
+SCRIPT_VERSION="1.1.0"
+INSTALL_PATH="/usr/local/bin/docker-cleanup"
+
 echo "========================================="
 echo "        DOCKER CLEANUP UTILITY"
 echo "       by github.com/AhmadShamli"
 echo "                 MIT"
+echo "           Version: $SCRIPT_VERSION"
 echo "========================================="
 echo
+
+# Check if script is already installed
+check_installation() {
+  if [ -f "$INSTALL_PATH" ]; then
+    INSTALLED_VERSION=$(grep -E '^SCRIPT_VERSION="' "$INSTALL_PATH" | sed 's/SCRIPT_VERSION="//;s/"//')
+    echo "Script is already installed at: $INSTALL_PATH"
+    echo "Installed version: $INSTALLED_VERSION"
+    echo "Current version: $SCRIPT_VERSION"
+    echo
+    if [ "$INSTALLED_VERSION" = "$SCRIPT_VERSION" ]; then
+      echo "✓ Already running the latest version"
+    else
+      echo "⚠️  Newer version available"
+    fi
+    echo
+  else
+    echo "Script is not installed"
+    echo
+  fi
+}
+
+# Install script to /usr/local/bin
+install_script() {
+  echo "Installing script to $INSTALL_PATH..."
+  
+  # Copy current script to installation directory
+  cp "$(readlink -f "$0")" "$INSTALL_PATH"
+  
+  # Make sure it's executable
+  chmod +x "$INSTALL_PATH"
+  
+  echo "✓ Installation successful!"
+  echo
+  echo "Now you can run the script from anywhere using: docker-cleanup"
+}
 
 if [ "$EUID" -ne 0 ]; then
   echo "Please run as root."
@@ -23,12 +64,14 @@ echo ">>> Initial Docker Usage"
 docker system df
 echo
 echo "========================================="
-echo "Choose cleanup mode:"
+echo "Choose an option:"
 echo "1) Step-by-step cleanup"
 echo "2) Single automatic run"
-echo "3) Abort"
+echo "3) Install script (system-wide)"
+echo "4) Check installation status"
+echo "5) Abort"
 echo "========================================="
-read -p "Enter choice [1-3]: " MODE
+read -p "Enter choice [1-5]: " MODE
 echo
 
 run_step() {
@@ -54,6 +97,14 @@ case $MODE in
     docker builder prune -a -f
     ;;
   3)
+    install_script
+    exit 0
+    ;;
+  4)
+    check_installation
+    exit 0
+    ;;
+  5)
     echo "Aborted."
     exit 0
     ;;
