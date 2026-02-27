@@ -63,74 +63,96 @@ echo
 echo ">>> Initial Docker Usage"
 docker system df
 echo
-echo "========================================="
-echo "Choose an option:"
-echo "1) Step-by-step cleanup"
-echo "2) Single automatic run"
-echo "3) Install script (system-wide)"
-echo "4) Check installation status"
-echo "5) Abort"
-echo "========================================="
-read -p "Enter choice [1-5]: " MODE
-echo
-
-run_step() {
+while true; do
+  echo "========================================="
+  echo "Choose an option:"
+  echo "1) Step-by-step cleanup"
+  echo "2) Single automatic run"
+  echo "3) Install script (system-wide)"
+  echo "4) Check installation status"
+  echo "5) Exit"
+  echo "========================================="
+  read -p "Enter choice [1-5]: " MODE
   echo
-  read -p "Proceed with: $1 ? (y/n): " CONFIRM
-  if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
-    eval "$2"
-  else
-    echo "Skipped: $1"
-  fi
-}
 
-case $MODE in
-  1)
-    run_step "Remove stopped containers" "docker container prune -f"
-    run_step "Remove unused images" "docker image prune -a -f"
-    run_step "Remove unused volumes" "docker volume prune -f"
-    run_step "Remove build cache" "docker builder prune -a -f"
-    ;;
-  2)
-    echo "Running full cleanup..."
-    docker system prune -a --volumes -f
-    docker builder prune -a -f
-    ;;
-  3)
-    install_script
-    exit 0
-    ;;
-  4)
-    check_installation
-    exit 0
-    ;;
-  5)
-    echo "Aborted."
-    exit 0
-    ;;
-  *)
-    echo "Invalid option."
-    exit 1
-    ;;
-esac
+  case $MODE in
+    1)
+      run_step() {
+        echo
+        read -p "Proceed with: $1 ? (y/n): " CONFIRM
+        if [[ "$CONFIRM" == "y" || "$CONFIRM" == "Y" ]]; then
+          eval "$2"
+        else
+          echo "Skipped: $1"
+        fi
+      }
 
-echo
-echo "========================================="
-echo "        CLEANUP COMPLETE"
-echo "========================================="
-echo
+      run_step "Remove stopped containers" "docker container prune -f"
+      run_step "Remove unused images" "docker image prune -a -f"
+      run_step "Remove unused volumes" "docker volume prune -f"
+      run_step "Remove build cache" "docker builder prune -a -f"
+      
+      echo
+      echo "========================================="
+      echo "        CLEANUP COMPLETE"
+      echo "========================================="
+      echo
 
-echo ">>> Final Disk Usage"
-echo
-FINAL_DISK=$(df -h / | awk 'NR==2 {print $3}')
-df -h /
-echo
-echo ">>> Final Docker Usage"
-docker system df
-echo
 
-echo "========================================="
-echo "Storage Difference:"
-echo "Before: $INITIAL_DISK used"
-echo "After : $FINAL_DISK used"
-echo "========================================="
+      echo ">>> Final Disk Usage"
+      echo
+      FINAL_DISK=$(df -h / | awk 'NR==2 {print $3}')
+      df -h /
+      echo
+      echo ">>> Final Docker Usage"
+      docker system df
+      echo
+
+      echo "========================================="
+      echo "Storage Difference:"
+      echo "Before: $INITIAL_DISK used"
+      echo "After : $FINAL_DISK used"
+      echo "========================================="
+      ;;
+    2)
+      echo "Running full cleanup..."
+      docker system prune -a --volumes -f
+      docker builder prune -a -f
+      
+      echo
+      echo "========================================="
+      echo "        CLEANUP COMPLETE"
+      echo "========================================="
+      echo
+
+
+      echo ">>> Final Disk Usage"
+      echo
+      FINAL_DISK=$(df -h / | awk 'NR==2 {print $3}')
+      df -h /
+      echo
+      echo ">>> Final Docker Usage"
+      docker system df
+      echo
+
+      echo "========================================="
+      echo "Storage Difference:"
+      echo "Before: $INITIAL_DISK used"
+      echo "After : $FINAL_DISK used"
+      echo "========================================="
+      ;;
+    3)
+      install_script
+      ;;
+    4)
+      check_installation
+      ;;
+    5)
+      echo "Exiting..."
+      exit 0
+      ;;
+    *)
+      echo "Invalid option."
+      ;;
+  esac
+done
